@@ -443,9 +443,6 @@
 						<?php submit_button('Save all settings'); ?>
 					</div>
 				</div>
-				<!-- END User Registration section -->
-
-				<!-- START Login with Google section -->
 				<div id="voa-settings-section-login-with-v" class="voa-settings-section">
 					<h3>Login with V</h3>
 					<div class='form-padding'>
@@ -473,16 +470,12 @@
 									       value='<?php echo get_option('voa_v_api_secret'); ?>'/>
 								</td>
 							</tr>
-						</table>
-
-
+						</table><p>
+							<a href="https://v.enl.one/oauth/clients">https://v.enl.one/oauth/clients</a> to add client. In url field put http://&lt;your domain&gt;/ or https://&lt;your domain&gt;/ depending on ssl or not
+						</p>
 						<?php submit_button('Save all settings'); ?>
 					</div>
 				</div>
-				<!-- END Login with Google section -->
-
-
-				<!-- START Back Channel Configuration section -->
 				<div id="voa-settings-section-back-channel=configuration" class="voa-settings-section">
 					<h3>Back Channel Configuration</h3>
 					<div class='form-padding'>
