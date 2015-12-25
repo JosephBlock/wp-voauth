@@ -33,6 +33,12 @@ elseif (isset($_GET['code'])) {
 				$oauth_identity['provider'] = $_SESSION['VOA']['PROVIDER'];
 				$oauth_identity['id'] = $vInfo->{'enlid'};
 				$oauth_identity['agent'] = $vInfo->{'agent'};
+				$oauth_identity['vlevel'] = $vInfo->{'vlevel'};
+				$oauth_identity['vpoints'] = $vInfo->{'vpoints'};
+				$oauth_identity['quarantine'] = $vInfo->{'quarantine'};
+				$oauth_identity['blacklisted'] = $vInfo->{'blacklisted'};
+				$oauth_identity['verified'] = $vInfo->{'verified'};
+
 				$this->voa_login_user($oauth_identity);
 			} catch (Exception $e) {echo $e->getMessage();}}} else {$this->voa_end_login("Sorry, we couldn't log you in. Please notify the admin or try again later.");}
 } else {

@@ -10,7 +10,7 @@ session_start();
 
 Class VOA
 {
-	const PLUGIN_VERSION = "1.0";
+	const PLUGIN_VERSION = "1.1";
 	protected static $instance = null;
 	private $settings = array(
 		'voa_show_login_messages'              => 0,
@@ -254,12 +254,31 @@ Class VOA
 	}
 	function voa_login_user($oauth_identity)
 	{
+		if($oauth_identity['quarantine']){
+		$this->voa_end_login("Sorry, you have been quarantined");
+		}
+		if($oauth_identity['blacklisted']){
+			$this->voa_end_login("Sorry, you have been blacklisted.");
+		}
+		if(!$oauth_identity['verified']){
+			$this->voa_end_login("Sorry, you are not verified yet.");
+		}
 		$_SESSION["VOA"]["USER_ID"] = $oauth_identity["id"];
 		$_SESSION['VOA']['agent'] = $oauth_identity['agent'];
+		$_SESSION['VOA']['vlevel'] = $oauth_identity['vlevel'];
+		$_SESSION['VOA']['vpoints'] = $oauth_identity['vpoints'];
+
+		$_SESSION['VOA']['quarantine'] = $oauth_identity['quarantine'];
+		$_SESSION['VOA']['blacklisted'] = $oauth_identity['blacklisted'];
+		$_SESSION['VOA']['verified'] = $oauth_identity['verified'];
+
+
 		$matched_user = $this->voa_match_wordpress_user($oauth_identity);
 		if ($matched_user) {
 			$user_id = $matched_user->ID;
 			$user_login = $matched_user->user_login;
+			$this->voa_add_vlevel($user_id);
+			$this->voa_add_vpoints($user_id);
 			wp_set_current_user($user_id, $user_login);
 			wp_set_auth_cookie($user_id);
 			do_action('wp_login', $user_login, $matched_user);
@@ -270,6 +289,8 @@ Class VOA
 			get_currentuserinfo();
 			$user_id = $current_user->ID;
 			$this->voa_link_account($user_id);
+			$this->voa_add_vlevel($user_id);
+			$this->voa_add_vpoints($user_id);
 			$this->voa_end_login("Your account was linked successfully with your third party authentication provider.");
 		}
 		if (!is_user_logged_in() && !$matched_user) {
@@ -331,6 +352,17 @@ Class VOA
 			add_user_meta($user_id, 'voa_identity', $_SESSION['VOA']['PROVIDER'] . '|' . $_SESSION['VOA']['USER_ID'] . '|' . time());
 		}
 	}
+	function voa_add_vlevel($user_id){
+		if ($_SESSION['VOA']['USER_ID'] != '') {
+			update_user_meta($user_id, 'voa_vlevel', $_SESSION['VOA']['vlevel']);
+		}
+	}
+	function voa_add_vpoints($user_id){
+		if ($_SESSION['VOA']['USER_ID'] != '') {
+			update_user_meta($user_id, 'voa_vpoints', $_SESSION['VOA']['vpoints']);
+		}
+	}
+
 	function voa_logout_user()
 	{
 		$user = null;
@@ -406,14 +438,13 @@ Class VOA
 		$html = "";
 		$design = get_option('voa_login_form_show_login_screen');
 		if ($design != "None") {
-			// TODO: we need to use $settings defaults here, not hard-coded defaults...
 			$html .= $this->voa_login_form_content($design, 'none', 'buttons-column', 'Connect with', 'center', 'conditional', 'conditional', 'Please login:', 'You are already logged in.', 'Logging in...', 'Logging out...');
 		}
 		echo $html;
 	}
 	function voa_login_form_content($design = '', $icon_set = 'icon_set', $layout = 'links-column', $button_prefix = '', $align = 'left', $show_login = 'conditional', $show_logout = 'conditional', $logged_out_title = 'Please login:', $logged_in_title = 'You are already logged in.', $logging_in_title = 'Logging in...', $logging_out_title = 'Logging out...', $style = '', $class = '')
 	{
-		if ($design != '' && VOA::voa_login_form_design_exists($design)) { // TODO: remove first condition not needed
+		if ($design != '' && VOA::voa_login_form_design_exists($design)) {
 			$a = VOA::voa_get_login_form_design($design);
 			$icon_set = $a['icon_set'];
 			$layout = $a['layout'];
