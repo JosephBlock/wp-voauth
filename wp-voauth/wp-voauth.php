@@ -2,7 +2,7 @@
 /*
 Plugin Name: V-Oauth
 Description: V
-Version: 1
+Version: 1.1
 Author: DisasterTrident
 License: MIT
 */
