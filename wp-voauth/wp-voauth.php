@@ -2,7 +2,7 @@
 /*
 Plugin Name: V-Oauth
 Description: V
-Version: 1.3
+Version: 1.4
 Author: DisasterTrident
 License: MIT
 */
@@ -695,18 +695,12 @@ Class VOA
 
 			<tr>
 				<td>
-					V Level:
-				</td>
-				<td>
-					<?php echo get_user_meta($user_id, "voa_vlevel", true); ?>
+					V Level: <?php echo get_user_meta($user_id, "voa_vlevel", true); ?>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					V Points:
-				</td>
-				<td>
-					<?php echo get_user_meta($user_id, "voa_vpoints", true); ?>
+					V Points: <?php echo get_user_meta($user_id, "voa_vpoints", true); ?>
 				</td>
 			</tr>
 
