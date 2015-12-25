@@ -1,6 +1,6 @@
 # wp-oauth
 V oauth client for Wordpress
-Download zip and use Wordpress plugin uploader
+Download zip and place wp-voauth into plugin folder
 
 Current Version:1.1
   Changes:  save vinfo to meta table
