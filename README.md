@@ -2,6 +2,5 @@
 V oauth client for Wordpress
 Download zip and place wp-voauth into plugin folder
 
-Current Version:1.1
-  Changes:  save vinfo to meta table
-            check v status of blacklisted,quarantined, or not verified to not allow registration
+Current Version:1.3
+  Changes:  Now displays v level and points on profile and all user pages
