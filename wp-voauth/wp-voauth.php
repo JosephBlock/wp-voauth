@@ -2,7 +2,7 @@
 /*
 Plugin Name: V-Oauth
 Description: V
-Version: 1.2
+Version: 1.3
 Author: DisasterTrident
 License: MIT
 */
@@ -10,7 +10,7 @@ session_start();
 
 Class VOA
 {
-	const PLUGIN_VERSION = "1.2";
+	const PLUGIN_VERSION = "1.3";
 	protected static $instance = null;
 	private $settings = array(
 		'voa_show_login_messages'              => 0,
@@ -68,20 +68,26 @@ Class VOA
 		'voa_restore_default_settings'         => 0,
 		'voa_delete_settings_on_uninstall'     => 0,
 	);
+
 	function __construct()
 	{
 		register_activation_hook(__FILE__, array($this, 'voa_activate'));
 		register_deactivation_hook(__FILE__, array($this, 'voa_deactivate'));
 		add_action('plugins_loaded', array($this, 'voa_update'));
 		add_action('init', array($this, 'init'));
+
 	}
+
 	public static function get_instance()
 	{
 		null === self::$instance and self::$instance = new self;
 		return self::$instance;
 	}
-	function voa_activate(){}
-	function voa_deactivate(){}
+
+	function voa_activate() { }
+
+	function voa_deactivate() { }
+
 	function voa_update()
 	{
 		$plugin_version = VOA::PLUGIN_VERSION;
@@ -91,6 +97,7 @@ Class VOA
 			update_option("voa_plugin_version", $plugin_version);
 		}
 	}
+
 	function voa_add_missing_settings()
 	{
 		foreach ($this->settings as $setting_name => $default_value) {
@@ -100,6 +107,7 @@ Class VOA
 			$added = add_option($setting_name, $default_value);
 		}
 	}
+
 	function voa_restore_default_settings_notice()
 	{
 		$settings_link = "<a href='options-general.php?page=V-Oauth'>Settings Page</a>";
@@ -109,11 +117,13 @@ Class VOA
 		</div>
 		<?php
 	}
+
 	function init()
 	{
 		if (get_option("voa_restore_default_settings")) {
 			$this->voa_restore_default_settings();
 		}
+
 		add_filter('query_vars', array($this, 'voa_qvar_triggers'));
 		add_action('template_redirect', array($this, 'voa_qvar_handlers'));
 		add_action('wp_enqueue_scripts', array($this, 'voa_init_frontend_scripts_styles'));
@@ -123,10 +133,16 @@ Class VOA
 		$plugin = plugin_basename(__FILE__);
 		add_filter("plugin_action_links_$plugin", array($this, 'voa_settings_link'));
 		add_action('login_enqueue_scripts', array($this, 'voa_init_login_scripts_styles'));
-		if (get_option('voa_logo_links_to_site') == true) {add_filter('login_headerurl', array($this, 'voa_logo_link'));}
+		if (get_option('voa_logo_links_to_site') == true) {
+			add_filter('login_headerurl', array($this, 'voa_logo_link'));
+		}
 		add_filter('login_message', array($this, 'voa_customize_login_screen'));
 		add_filter('comment_form_defaults', array($this, 'voa_customize_comment_form_fields'));
+		add_filter('show_user_profile', array($this, 'show_v_info'));
+		add_action('edit_user_profile', array($this, 'show_v_info'));
 		add_action('show_user_profile', array($this, 'voa_linked_accounts'));
+		add_filter('manage_users_columns', array($this, 'add_v_columns'));
+		add_filter('manage_users_custom_column', array($this, 'add_v_column_data'), 10, 3);
 		add_action('wp_logout', array($this, 'voa_end_logout'));
 		add_action('wp_ajax_voa_logout', array($this, 'voa_logout_user'));
 		add_action('wp_ajax_voa_unlink_account', array($this, 'voa_unlink_account'));
@@ -138,6 +154,7 @@ Class VOA
 			add_filter('login_footer', array($this, 'voa_push_login_messages'));
 		}
 	}
+
 	function voa_restore_default_settings()
 	{
 		foreach ($this->settings as $setting_name => $default_value) {
@@ -148,6 +165,7 @@ Class VOA
 		}
 		add_action('admin_notices', array($this, 'voa_restore_default_settings_notice'));
 	}
+
 	function voa_init_frontend_scripts_styles()
 	{
 		$voa_jvars = array(
@@ -168,6 +186,7 @@ Class VOA
 		wp_enqueue_script('voa-script', plugin_dir_url(__FILE__) . 'wp-voauth.js', array());
 		wp_enqueue_style('voa-style', plugin_dir_url(__FILE__) . 'wp-voauth.css', array());
 	}
+
 	function voa_init_backend_scripts_styles()
 	{
 		$voa_jvars = array(
@@ -188,6 +207,7 @@ Class VOA
 		wp_enqueue_style('voa-style', plugin_dir_url(__FILE__) . 'wp-voauth.css', array());
 		wp_enqueue_media();
 	}
+
 	function voa_init_login_scripts_styles()
 	{
 		$voa_jvars = array(
@@ -212,18 +232,21 @@ Class VOA
 		wp_enqueue_script('voa-script', plugin_dir_url(__FILE__) . 'wp-voauth.js', array());
 		wp_enqueue_style('voa-style', plugin_dir_url(__FILE__) . 'wp-voauth.css', array());
 	}
+
 	function voa_settings_link($links)
 	{
-		$settings_link = "<a href='options-general.php?page=V-Oauth'>Settings</a>"; // CASE SeNsItIvE filename!
+		$settings_link = "<a href='options-general.php?page=V-Oauth'>Settings</a>";
 		array_unshift($links, $settings_link);
 		return $links;
 	}
+
 	function voa_add_basic_auth($url, $username, $password)
 	{
 		$url = str_replace("https://", "", $url);
 		$url = "https://" . $username . ":" . $password . "@" . $url;
 		return $url;
 	}
+
 	function voa_qvar_triggers($vars)
 	{
 		$vars[] = 'connect';
@@ -232,6 +255,7 @@ Class VOA
 		$vars[] = 'error_message';
 		return $vars;
 	}
+
 	function voa_qvar_handlers()
 	{
 		if (get_query_var('connect')) {
@@ -245,6 +269,7 @@ Class VOA
 			$this->voa_include_connector($provider);
 		}
 	}
+
 	function voa_include_connector($provider)
 	{
 		$provider = strtolower($provider);
@@ -252,15 +277,16 @@ Class VOA
 		$provider = str_replace(".", "", $provider);
 		include 'login-' . $provider . '.php';
 	}
+
 	function voa_login_user($oauth_identity)
 	{
-		if($oauth_identity['quarantine']){
-		$this->voa_end_login("Sorry, you have been quarantined");
+		if ($oauth_identity['quarantine']) {
+			$this->voa_end_login("Sorry, you have been quarantined");
 		}
-		if($oauth_identity['blacklisted']){
+		if ($oauth_identity['blacklisted']) {
 			$this->voa_end_login("Sorry, you have been blacklisted.");
 		}
-		if(!$oauth_identity['verified']){
+		if (!$oauth_identity['verified']) {
 			$this->voa_end_login("Sorry, you are not verified yet.");
 		}
 		$_SESSION["VOA"]["USER_ID"] = $oauth_identity["id"];
@@ -298,6 +324,7 @@ Class VOA
 		}
 		$this->voa_end_login("Sorry, we couldn't log you in. The login flow terminated in an unexpected way. Please notify the admin or try again later.");
 	}
+
 	function voa_match_wordpress_user($oauth_identity)
 	{
 		global $wpdb;
@@ -307,6 +334,7 @@ Class VOA
 		$user = get_user_by('id', $query_result);
 		return $user;
 	}
+
 	function voa_end_login($msg)
 	{
 		$last_url = $_SESSION["VOA"]["LAST_URL"];
@@ -338,6 +366,7 @@ Class VOA
 		wp_safe_redirect($redirect_url);
 		die();
 	}
+
 	function voa_clear_login_state()
 	{
 		unset($_SESSION["VOA"]["USER_ID"]);
@@ -346,18 +375,23 @@ Class VOA
 		unset($_SESSION["VOA"]["EXPIRES_IN"]);
 		unset($_SESSION["VOA"]["EXPIRES_AT"]);
 	}
+
 	function voa_link_account($user_id)
 	{
 		if ($_SESSION['VOA']['USER_ID'] != '') {
 			add_user_meta($user_id, 'voa_identity', $_SESSION['VOA']['PROVIDER'] . '|' . $_SESSION['VOA']['USER_ID'] . '|' . time());
 		}
 	}
-	function voa_add_vlevel($user_id){
+
+	function voa_add_vlevel($user_id)
+	{
 		if ($_SESSION['VOA']['USER_ID'] != '') {
 			update_user_meta($user_id, 'voa_vlevel', $_SESSION['VOA']['vlevel']);
 		}
 	}
-	function voa_add_vpoints($user_id){
+
+	function voa_add_vpoints($user_id)
+	{
 		if ($_SESSION['VOA']['USER_ID'] != '') {
 			update_user_meta($user_id, 'voa_vpoints', $_SESSION['VOA']['vpoints']);
 		}
@@ -369,6 +403,7 @@ Class VOA
 		session_destroy();
 		wp_logout();
 	}
+
 	function voa_end_logout()
 	{
 		$_SESSION["VOA"]["RESULT"] = 'Logged out successfully.';
@@ -406,6 +441,7 @@ Class VOA
 		wp_safe_redirect($redirect_url);
 		die();
 	}
+
 	function voa_unlink_account()
 	{
 		$voa_identity_row = $_POST['voa_identity_row'];
@@ -423,16 +459,19 @@ Class VOA
 		}
 		die();
 	}
+
 	function voa_push_login_messages()
 	{
 		$result = $_SESSION['VOA']['RESULT'];
 		$_SESSION['VOA']['RESULT'] = '';
 		echo "<div id='voa-result'>" . $result . "</div>";
 	}
+
 	function voa_logo_link()
 	{
 		return get_bloginfo('url');
 	}
+
 	function voa_customize_login_screen()
 	{
 		$html = "";
@@ -442,6 +481,7 @@ Class VOA
 		}
 		echo $html;
 	}
+
 	function voa_login_form_content($design = '', $icon_set = 'icon_set', $layout = 'links-column', $button_prefix = '', $align = 'left', $show_login = 'conditional', $show_logout = 'conditional', $logged_out_title = 'Please login:', $logged_in_title = 'You are already logged in.', $logging_in_title = 'Logging in...', $logging_out_title = 'Logging out...', $style = '', $class = '')
 	{
 		if ($design != '' && VOA::voa_login_form_design_exists($design)) {
@@ -494,6 +534,7 @@ Class VOA
 	{
 		return false;
 	}
+
 	function voa_get_login_form_design($design_name, $as_string = false)
 	{
 		$designs_json = get_option('voa_login_form_designs');
@@ -514,6 +555,7 @@ Class VOA
 		}
 		return $atts;
 	}
+
 	function voa_login_buttons($icon_set, $button_prefix)
 	{
 		$site_url = get_bloginfo('url');
@@ -536,6 +578,7 @@ Class VOA
 		}
 		return $html;
 	}
+
 	function voa_login_button($provider, $display_name, $atts)
 	{
 		$html = "";
@@ -549,6 +592,7 @@ Class VOA
 		}
 		return $html;
 	}
+
 	function voa_customize_comment_form_fields($fields)
 	{
 		$html = "";
@@ -559,6 +603,7 @@ Class VOA
 		}
 		return $fields;
 	}
+
 	function voa_customize_comment_form()
 	{
 		$html = "";
@@ -568,6 +613,7 @@ Class VOA
 		}
 		echo $html;
 	}
+
 	function voa_login_form($atts)
 	{
 		$a = shortcode_atts(array(
@@ -588,6 +634,7 @@ Class VOA
 		$html = $this->voa_login_form_content($a['design'], $a['icon_set'], $a['layout'], $a['button_prefix'], $a['align'], $a['show_login'], $a['show_logout'], $a['logged_out_title'], $a['logged_in_title'], $a['logging_in_title'], $a['logging_out_title'], $a['style'], $a['class']);
 		return $html;
 	}
+
 	function voa_login_form_designs_selector($id = '', $master = false)
 	{
 		$html = "";
@@ -610,6 +657,62 @@ Class VOA
 		}
 		return $html;
 	}
+
+	function add_v_columns($column)
+	{
+		$column['vlevel'] = 'V Level';
+		$column['vpoints'] = 'V Points';
+		return $column;
+	}
+
+	function add_v_column_data($val, $column_name, $user_id)
+	{
+
+
+		$output = "";
+		if ('vlevel' == $column_name) {
+			$vlevel = get_user_meta($user_id, "voa_vlevel", true);
+			$output .= ($vlevel);
+		}
+		if ('vpoints' == $column_name) {
+			$vpoints = get_user_meta($user_id, "voa_vpoints", true);
+			$output .= ($vpoints);
+		}
+		return $output;
+
+	}
+
+	function show_v_info()
+	{
+		global $current_user;
+		get_currentuserinfo();
+		$user_id = $current_user->ID;
+		?>
+
+		<h3>V Info</h3>
+
+		<table class="form-table">
+
+			<tr>
+				<td>
+					V Level:
+				</td>
+				<td>
+					<?php echo get_user_meta($user_id, "voa_vlevel", true); ?>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					V Points:
+				</td>
+				<td>
+					<?php echo get_user_meta($user_id, "voa_vpoints", true); ?>
+				</td>
+			</tr>
+
+		</table>
+	<?php }
+
 	function voa_linked_accounts()
 	{
 		global $current_user;
@@ -646,7 +749,6 @@ Class VOA
 		echo "<td>";
 		$design = get_option('voa_login_form_show_profile_page');
 		if ($design != "None") {
-			// TODO: we need to use $settings defaults here, not hard-coded defaults...
 			echo $this->voa_login_form_content($design, 'none', 'buttons-row', 'Link', 'left', 'always', 'never', 'Select a provider:', 'Select a provider:', 'Authenticating...', '');
 		}
 		echo "</div>";
@@ -654,16 +756,19 @@ Class VOA
 		echo "</td>";
 		echo "</table>";
 	}
+
 	function voa_register_settings()
 	{
 		foreach ($this->settings as $setting_name => $default_value) {
 			register_setting('voa_settings', $setting_name);
 		}
 	}
+
 	function voa_settings_page()
 	{
 		add_options_page('V-Oauth Options', 'V-Oauth', 'manage_options', 'V-Oauth', array($this, 'voa_settings_page_content'));
 	}
+
 	function voa_settings_page_content()
 	{
 		if (!current_user_can('manage_options')) {
@@ -672,5 +777,7 @@ Class VOA
 		$blog_url = rtrim(site_url(), "/") . "/";
 		include 'wp-voauth-settings.php';
 	}
+
 }
+
 VOA::get_instance();

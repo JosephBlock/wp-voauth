@@ -8,25 +8,12 @@ body.voa-lightbox-visible {overflow:hidden;}
 .voa-login-message{text-align:center; left:0; right:0; top:5px; position:absolute; font-size:1em; z-index:999999;}
 .voa-login-message span {padding:4px 6px; background:#fff; color:#000; border-radius:5px; display:inline-block;}
 
-/*  SETTINGS PAGE
-=================*/
-#voa-measurements {margin-bottom:5px;}
-.voa-measurement {background:#ccc; border-radius:5px;}
-.voa-measurement-label {margin-top:1em; margin-bottom:0.25em;}
-.voa-measurement-rating {padding:3px; background:#2EA2CC; border-radius:5px; -webkit-transition:all 1s ease;}
-
 #voa_login_redirect_page {display:none;}
 #voa_logout_redirect_page {display:none;}
 
 #voa-settings-meta {float:right; text-align:right; color:#999; padding-top:9px;}
 #voa-settings-meta ul {display:inline; margin-left:0;}
 #voa-settings-meta li {display:inline; margin-left:0.5em;}
-
-#voa-rate-5stars {}
-#voa-rate-5stars:hover {}
-
-#voa-logo {margin-left:0.5em; margin-bottom:0.5em; width:64px; height:64px; float:right; background-image:url(http://ps.w.org/wp-oauth/assets/icon-128x128.png);}
-#voa-logo:hover {background-image:url(http://ps.w.org/wp-oauth/assets/thepb.jpg);}
 
 #voa-settings-col1 {width:68%; float:left;}
 #voa-settings-col2 {width:30%; float:right;}
@@ -50,12 +37,6 @@ body.voa-lightbox-visible {overflow:hidden;}
 	#voa-settings-col2 {width:auto; float:none;}
 }
 
-#voa-plugin-info {margin-bottom:1em; background-color:#fff9d8; padding-left:1em; padding-right:1em; border-radius:1em; border:1px solid #e7dca4;}
-#voa-plugin-info nav {margin-top:0.5em; margin-bottom:0.25em;}
-#voa-plugin-info nav + nav {margin-top:0.25em; margin-bottom:0.5em;}
-#voa-plugin-info #paypal-button {display:inline-block; vertical-align:middle;}
-#voa-plugin-info #paypal-button input {padding:0;}
-#voa-paypal-button {float:right;}
 
 .voa-settings-section {background-color:#fff; margin-bottom:1.5em; border:1px solid #ddd;}
 #voa-settings-intro {border-radius:15px; text-align:center;}
