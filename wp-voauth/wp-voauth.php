@@ -2,7 +2,7 @@
 /*
 Plugin Name: V-Oauth
 Description: V
-Version: 1.1
+Version: 1.2
 Author: DisasterTrident
 License: MIT
 */
@@ -10,7 +10,7 @@ session_start();
 
 Class VOA
 {
-	const PLUGIN_VERSION = "1.1";
+	const PLUGIN_VERSION = "1.2";
 	protected static $instance = null;
 	private $settings = array(
 		'voa_show_login_messages'              => 0,
