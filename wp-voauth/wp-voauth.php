@@ -2,7 +2,7 @@
 /*
 Plugin Name: V-Oauth
 Description: V
-Version: 1.4
+Version: 1.6
 Author: DisasterTrident
 License: MIT
 */
@@ -10,7 +10,7 @@ session_start();
 
 Class VOA
 {
-	const PLUGIN_VERSION = "1.3";
+	const PLUGIN_VERSION = "1.6";
 	protected static $instance = null;
 	private $settings = array(
 		'voa_show_login_messages'              => 0,
@@ -28,6 +28,7 @@ Class VOA
 		'voa_login_form_show_login_screen'     => 'Login Screen',
 		'voa_login_form_show_profile_page'     => 'Profile Page',
 		'voa_login_form_show_comments_section' => 'None',
+		'voa_allow_oauth_to_register_always'   => '1',
 		'voa_login_form_designs'               => array(
 			'Login Screen' => array(
 				'icon_set'          => 'none',
@@ -280,31 +281,21 @@ Class VOA
 
 	function voa_login_user($oauth_identity)
 	{
-		if ($oauth_identity['quarantine']) {
-			$this->voa_end_login("Sorry, you have been quarantined");
-		}
-		if ($oauth_identity['blacklisted']) {
-			$this->voa_end_login("Sorry, you have been blacklisted.");
-		}
-		if (!$oauth_identity['verified']) {
-			$this->voa_end_login("Sorry, you are not verified yet.");
-		}
+		//required
 		$_SESSION["VOA"]["USER_ID"] = $oauth_identity["id"];
-		$_SESSION['VOA']['agent'] = $oauth_identity['agent'];
-		$_SESSION['VOA']['vlevel'] = $oauth_identity['vlevel'];
-		$_SESSION['VOA']['vpoints'] = $oauth_identity['vpoints'];
-
-		$_SESSION['VOA']['quarantine'] = $oauth_identity['quarantine'];
-		$_SESSION['VOA']['blacklisted'] = $oauth_identity['blacklisted'];
-		$_SESSION['VOA']['verified'] = $oauth_identity['verified'];
+		$_SESSION["VOA"]["email"] = $oauth_identity['email'];
+		$_SESSION["VOA"]['firstName'] = $oauth_identity['firstName'];
+		$_SESSION["VOA"]['lastName'] = $oauth_identity['lastName'];
 
 
 		$matched_user = $this->voa_match_wordpress_user($oauth_identity);
 		if ($matched_user) {
 			$user_id = $matched_user->ID;
 			$user_login = $matched_user->user_login;
-			$this->voa_add_vlevel($user_id);
-			$this->voa_add_vpoints($user_id);
+			if ($oauth_identity['provider'] == 'v') {
+				$this->voa_add_vlevel($user_id);
+				$this->voa_add_vpoints($user_id);
+			}
 			wp_set_current_user($user_id, $user_login);
 			wp_set_auth_cookie($user_id);
 			do_action('wp_login', $user_login, $matched_user);
@@ -315,8 +306,10 @@ Class VOA
 			get_currentuserinfo();
 			$user_id = $current_user->ID;
 			$this->voa_link_account($user_id);
-			$this->voa_add_vlevel($user_id);
-			$this->voa_add_vpoints($user_id);
+			if ($oauth_identity['provider'] == 'v') {
+				$this->voa_add_vlevel($user_id);
+				$this->voa_add_vpoints($user_id);
+			}
 			$this->voa_end_login("Your account was linked successfully with your third party authentication provider.");
 		}
 		if (!is_user_logged_in() && !$matched_user) {
@@ -453,6 +446,8 @@ Class VOA
 		$query_string = $wpdb->prepare("DELETE FROM $usermeta_table WHERE $usermeta_table.user_id = $user_id AND $usermeta_table.meta_key = 'voa_identity' AND $usermeta_table.umeta_id = %d", $voa_identity_row);
 		$query_result = $wpdb->query($query_string);
 		if ($query_result) {
+			delete_user_meta($user_id, "voa_vpoints");
+			delete_user_meta($user_id, "voa_vlevel");
 			echo json_encode(array('result' => 1));
 		} else {
 			echo json_encode(array('result' => 0));

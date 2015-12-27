@@ -22,6 +22,17 @@
 					<h3>General Settings</h3>
 					<div class='form-padding'>
 						<table class='form-table'>
+
+							<tr valign='top' class='has-tip' class="has-tip">
+								<th scope='row'>Always allow OAuth to register: <a href="#" class="tip-button">[?]</a>
+								</th>
+								<td>
+									<input type='checkbox' name='voa_allow_oauth_to_register_always'
+									       value='1' <?php checked(get_option('voa_allow_oauth_to_register_always') == 1); ?> />
+									<p class="tip-message">Allows registration even when Wordpress option "Anyone can
+										register" is disabled</p>
+								</td>
+							</tr>
 							<tr valign='top' class='has-tip' class="has-tip">
 								<th scope='row'>Show login messages: <a href="#" class="tip-button">[?]</a></th>
 								<td>
@@ -158,6 +169,42 @@
 								</td>
 							</tr>
 						</table>
+						<?php submit_button('Save all settings'); ?>
+					</div>
+				</div>
+				<div id="voa-settings-section-login-with-v" class="voa-settings-section">
+					<h3>Login with V</h3>
+					<div class='form-padding'>
+						<table class='form-table'>
+							<tr valign='top'>
+								<th scope='row'>Enabled:</th>
+								<td>
+									<input type='checkbox' name='voa_v_api_enabled'
+									       value='1' <?php checked(get_option('voa_v_api_enabled') == 1); ?> />
+								</td>
+							</tr>
+
+							<tr valign='top'>
+								<th scope='row'>Client ID:</th>
+								<td>
+									<input type='text' name='voa_v_api_id'
+									       value='<?php echo get_option('voa_v_api_id'); ?>'/>
+								</td>
+							</tr>
+
+							<tr valign='top'>
+								<th scope='row'>Client Secret:</th>
+								<td>
+									<input type='text' name='voa_v_api_secret'
+									       value='<?php echo get_option('voa_v_api_secret'); ?>'/>
+								</td>
+							</tr>
+						</table>
+						<p>
+							<a href="https://v.enl.one/oauth/clients">https://v.enl.one/oauth/clients</a> to add client.
+							In url field put http://&lt;your domain&gt;/ or https://&lt;your domain&gt;/ depending on
+							ssl or not <b>(trailing "/" is required on domain)</b>
+						</p>
 						<?php submit_button('Save all settings'); ?>
 					</div>
 				</div>
@@ -437,82 +484,6 @@
 										name="voa_new_user_role"><?php wp_dropdown_roles(get_option('voa_new_user_role')); ?></select>
 									<p class="tip-message">Specifies what user role will be assigned to newly registered
 										users.</p>
-								</td>
-							</tr>
-						</table>
-						<?php submit_button('Save all settings'); ?>
-					</div>
-				</div>
-				<div id="voa-settings-section-login-with-v" class="voa-settings-section">
-					<h3>Login with V</h3>
-					<div class='form-padding'>
-						<table class='form-table'>
-							<tr valign='top'>
-								<th scope='row'>Enabled:</th>
-								<td>
-									<input type='checkbox' name='voa_v_api_enabled'
-									       value='1' <?php checked(get_option('voa_v_api_enabled') == 1); ?> />
-								</td>
-							</tr>
-
-							<tr valign='top'>
-								<th scope='row'>Client ID:</th>
-								<td>
-									<input type='text' name='voa_v_api_id'
-									       value='<?php echo get_option('voa_v_api_id'); ?>'/>
-								</td>
-							</tr>
-
-							<tr valign='top'>
-								<th scope='row'>Client Secret:</th>
-								<td>
-									<input type='text' name='voa_v_api_secret'
-									       value='<?php echo get_option('voa_v_api_secret'); ?>'/>
-								</td>
-							</tr>
-						</table><p>
-							<a href="https://v.enl.one/oauth/clients">https://v.enl.one/oauth/clients</a> to add client. In url field put http://&lt;your domain&gt;/ or https://&lt;your domain&gt;/ depending on ssl or not
-						</p>
-						<?php submit_button('Save all settings'); ?>
-					</div>
-				</div>
-				<div id="voa-settings-section-back-channel=configuration" class="voa-settings-section">
-					<h3>Back Channel Configuration</h3>
-					<div class='form-padding'>
-						<p>These settings are for troubleshooting and/or fine tuning the back channel communication this
-							plugin utilizes between your server and the third-party providers.</p>
-						<table class='form-table'>
-							<tr valign='top' class="has-tip">
-								<th scope='row'>HTTP utility: <a href="#" class="tip-button">[?]</a></th>
-								<td>
-									<select name='voa_http_util'>
-										<option value='curl' <?php selected(get_option('voa_http_util'), 'curl'); ?>>
-											cURL
-										</option>
-										<option
-											value='stream-context' <?php selected(get_option('voa_http_util'), 'stream-context'); ?>>
-											Stream Context
-										</option>
-									</select>
-									<p class="tip-message">The method used by the web server for performing HTTP
-										requests to the third-party providers. Most servers support cURL, but some
-										servers may require Stream Context instead.</p>
-								</td>
-							</tr>
-
-							<tr valign='top' class="has-tip">
-								<th scope='row'>Verify Peer/Host SSL Certificates: <a href="#"
-								                                                      class="tip-button">[?]</a></th>
-								<td>
-									<input type='checkbox' name='voa_http_util_verify_ssl'
-									       value='1' <?php checked(get_option('voa_http_util_verify_ssl') == 1); ?> />
-									<p class="tip-message">Determines whether or not to validate peer/host SSL
-										certificates during back channel HTTP calls to the third-party login providers.
-										If your server has an incorrect SSL configuration or doesn't support SSL, you
-										may try disabling this setting as a workaround.</p>
-									<p class="tip-message tip-warning"><strong>Warning:</strong> Disabling this is not
-										recommended. For maximum security it would be a good idea to get your server's
-										SSL configuration fixed and keep this setting enabled.</p>
 								</td>
 							</tr>
 						</table>

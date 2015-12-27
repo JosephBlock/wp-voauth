@@ -5,7 +5,7 @@ $v = new vOauth();
 $_SESSION['VOA']['PROVIDER'] = 'v';
 $v->setClient(get_option('voa_v_api_id'));
 $v->setSecret(get_option('voa_v_api_secret'));
-$v->addScope("profile");
+$v->addScope(array(vOauth::SCOPE_PROFILE, vOauth::SCOPE_EMAIL, vOauth::SCOPE_GOOGLEDATA));
 $v->setRedirect(rtrim(site_url(), '/') . '/');
 define('HTTP_UTIL', get_option('voa_http_util'));
 define('CLIENT_ENABLED', get_option('voa_v_api_enabled'));
@@ -29,16 +29,35 @@ elseif (isset($_GET['code'])) {
 			$_SESSION['VOA']['EXPIRES_AT'] = $expires_at;
 			try {
 				$vInfo = $v->getVInfo();
+				$googleInfo = $v->getGoogleData();
 				$oauth_identity = array();
+				//universal
 				$oauth_identity['provider'] = $_SESSION['VOA']['PROVIDER'];
 				$oauth_identity['id'] = $vInfo->{'enlid'};
-				$oauth_identity['agent'] = $vInfo->{'agent'};
-				$oauth_identity['vlevel'] = $vInfo->{'vlevel'};
-				$oauth_identity['vpoints'] = $vInfo->{'vpoints'};
-				$oauth_identity['quarantine'] = $vInfo->{'quarantine'};
-				$oauth_identity['blacklisted'] = $vInfo->{'blacklisted'};
-				$oauth_identity['verified'] = $vInfo->{'verified'};
+				$oauth_identity['email'] = $v->getEmail()->{'email'};
+				$oauth_identity['firstName'] = $googleInfo->{'forename'};
+				$oauth_identity['lastName'] = $googleInfo->{'lastname'};
 
+
+				$_SESSION['VOA']['oauthUsername'] = $vInfo->{'agent'}; //required for username
+				//v specific
+				$_SESSION['VOA']['vlevel'] = $vInfo->{'vlevel'};
+				$_SESSION['VOA']['vpoints'] = $vInfo->{'vpoints'};
+
+
+				//getGoogleData
+				if ($vInfo->{'quarantine'}) {
+					$this->voa_end_login("Sorry, you have been quarantined");
+					exit;
+				}
+				if ($vInfo->{'blacklisted'}) {
+					$this->voa_end_login("Sorry, you have been blacklisted.");
+					exit;
+				}
+				if (!$vInfo->{'verified'}) {
+					$this->voa_end_login("Sorry, you are not verified yet.");
+					exit;
+				}
 				$this->voa_login_user($oauth_identity);
 			} catch (Exception $e) {echo $e->getMessage();}}} else {$this->voa_end_login("Sorry, we couldn't log you in. Please notify the admin or try again later.");}
 } else {
