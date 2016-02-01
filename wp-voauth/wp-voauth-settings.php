@@ -21,6 +21,21 @@
 				<div id="voa-settings-section-general-settings" class="voa-settings-section">
 					<h3>General Settings</h3>
 					<div class='form-padding'>
+						<p>If you wish to limit content per V Level, install <a
+								href="https://wordpress.org/plugins/eyes-only-user-access-shortcode/">Eyes Only WP
+								plugin</a>
+							<br>Then you can add this to pages/posts:
+							<br>
+							<code>
+								[eyesonly vscope="4"] V4 only [/eyesonly]<br>
+								[eyesonly vscope="3, 4"] V3+ [/eyesonly]<br>
+								[eyesonly vscope="2, 3, 4"] V2+ [/eyesonly]<br>
+								[eyesonly vscope="1, 2, 3, 4"] V1+ [/eyesonly]<br><br>
+								[eyesonly vscope="3"] V3 only [/eyesonly]<br>
+								[eyesonly vscope="2"] V2 only [/eyesonly]<br>
+								[eyesonly vscope="1"] V1 only [/eyesonly]
+							</code>
+						</p>
 						<table class='form-table'>
 
 							<tr valign='top' class='has-tip' class="has-tip">

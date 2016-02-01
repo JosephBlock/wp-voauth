@@ -2,7 +2,7 @@
 /*
 Plugin Name: V-Oauth
 Description: V
-Version: 1.6
+Version: 1.6.1
 Author: DisasterTrident
 License: MIT
 */
@@ -10,7 +10,7 @@ session_start();
 
 Class VOA
 {
-	const PLUGIN_VERSION = "1.6";
+	const PLUGIN_VERSION = "1.6.1";
 	protected static $instance = null;
 	private $settings = array(
 		'voa_show_login_messages'              => 0,
@@ -70,8 +70,27 @@ Class VOA
 		'voa_delete_settings_on_uninstall'     => 0,
 	);
 
+	function _my_eo_matching($matched, $params, $shortcode_content)
+	{
+		if (!empty($params['vscope'])) {
+			$shortcode_group_ids_array = $params['vscope'];
+			if (in_array($_SESSION['VOA']['vlevel'], $shortcode_group_ids_array)) {
+				return true;
+			}
+			return $matched;
+		}
+	}
+
+	function _my_eo_available_groups($group_labels)
+	{
+		$group_labels = array(0 => 'V Level 0', 1 => 'V Level 1', 2 => 'V Level 2', 3 => 'V Level 3', 4 => 'V Level 4');
+		return $group_labels;
+	}
+
 	function __construct()
 	{
+		add_filter('sseo_vscope_items', array($this, '_my_eo_available_groups'));
+		add_filter('eo_shortcode_matched', array($this, '_my_eo_matching'), 10, 3);
 		register_activation_hook(__FILE__, array($this, 'voa_activate'));
 		register_deactivation_hook(__FILE__, array($this, 'voa_deactivate'));
 		add_action('plugins_loaded', array($this, 'voa_update'));
@@ -121,10 +140,13 @@ Class VOA
 
 	function init()
 	{
+
 		if (get_option("voa_restore_default_settings")) {
 			$this->voa_restore_default_settings();
 		}
-
+		if (function_exists("sseo_register_parameter")) {
+			sseo_register_parameter('vscope', 'V');
+		}
 		add_filter('query_vars', array($this, 'voa_qvar_triggers'));
 		add_action('template_redirect', array($this, 'voa_qvar_handlers'));
 		add_action('wp_enqueue_scripts', array($this, 'voa_init_frontend_scripts_styles'));
