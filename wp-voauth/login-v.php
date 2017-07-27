@@ -1,6 +1,6 @@
 <?php
 session_start();
-require('vOauth.php');
+require('vOauth/src/vOauth.php');
 $v = new vOauth();
 $_SESSION['VOA']['PROVIDER'] = 'v';
 $v->setClient(get_option('voa_v_api_id'));

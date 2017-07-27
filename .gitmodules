@@ -1,0 +1,3 @@
+[submodule "wp-voauth/vOauth"]
+	path = wp-voauth/vOauth
+	url = https://github.com/JosephBlock/vOauth
