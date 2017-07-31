@@ -2,5 +2,7 @@
 V oauth client for Wordpress
 Download zip and place wp-voauth into plugin folder
 
-Current Version: 1.6
-  Changes:  Auto Logon after registering, moved v specific values into v provider file, adds name and email to user now
+Current Version: 1.7.0<br>
+Changes: Added ability to allow content via V Teams<br>
+		 Changed library file to submodule
+  
