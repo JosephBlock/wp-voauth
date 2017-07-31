@@ -5,7 +5,7 @@ $v = new vOauth();
 $_SESSION['VOA']['PROVIDER'] = 'v';
 $v->setClient(get_option('voa_v_api_id'));
 $v->setSecret(get_option('voa_v_api_secret'));
-$v->addScope(array(vOauth::SCOPE_PROFILE, vOauth::SCOPE_EMAIL, vOauth::SCOPE_GOOGLEDATA));
+$v->addScope(array(vOauth::SCOPE_PROFILE, vOauth::SCOPE_EMAIL, vOauth::SCOPE_GOOGLEDATA, vOauth::SCOPE_TEAMS));
 $v->setRedirect(rtrim(site_url(), '/') . '/');
 define('HTTP_UTIL', get_option('voa_http_util'));
 define('CLIENT_ENABLED', get_option('voa_v_api_enabled'));
@@ -30,6 +30,7 @@ elseif (isset($_GET['code'])) {
 			try {
 				$vInfo = $v->getVInfo();
 				$googleInfo = $v->getGoogleData();
+				$vTeams = $v->getVTeams();
 				$oauth_identity = array();
 				//universal
 				$oauth_identity['provider'] = $_SESSION['VOA']['PROVIDER'];
@@ -44,7 +45,6 @@ elseif (isset($_GET['code'])) {
 				$_SESSION['VOA']['vlevel'] = $vInfo->{'vlevel'};
 				$_SESSION['VOA']['vpoints'] = $vInfo->{'vpoints'};
 
-
 				//getGoogleData
 				if ($vInfo->{'quarantine'}) {
 					$this->voa_end_login("Sorry, you have been quarantined");
@@ -58,6 +58,24 @@ elseif (isset($_GET['code'])) {
 					$this->voa_end_login("Sorry, you are not verified yet.");
 					exit;
 				}
+				$teams=array();
+				foreach ($vTeams as $t){
+					$teamID = $t->{'teamid'};
+//					$result = add_role(
+//						$teamID,
+//						__( $t->{'team'} ),
+//						array('read'=> true)
+//					);
+//					if ( null !== $result ) {
+//						echo 'Yay! New role created!';
+//					}
+//					else {
+//						echo 'Oh... the basic_contributor role already exists.';
+//					}
+					$teams[$teamID]=$t->{'team'};
+				}
+				error_log(var_export($teams,false));
+				$_SESSION['VOA']['vteams'] =$teams;
 				$this->voa_login_user($oauth_identity);
 			} catch (Exception $e) {echo $e->getMessage();}}} else {$this->voa_end_login("Sorry, we couldn't log you in. Please notify the admin or try again later.");}
 } else {

@@ -26,8 +26,7 @@
 								plugin</a>
 							<br>Then you can add this to pages/posts:
 							<br>
-							<code>
-								[eyesonly vscope="4"] V4 only [/eyesonly]<br>
+							<code>[eyesonly vscope="4"] V4 only [/eyesonly]<br>
 								[eyesonly vscope="3, 4"] V3+ [/eyesonly]<br>
 								[eyesonly vscope="2, 3, 4"] V2+ [/eyesonly]<br>
 								[eyesonly vscope="1, 2, 3, 4"] V1+ [/eyesonly]<br><br>
