@@ -34,7 +34,7 @@ elseif (isset($_GET['code'])) {
 				$oauth_identity = array();
 				//universal
 				$oauth_identity['provider'] = $_SESSION['VOA']['PROVIDER'];
-				$oauth_identity['id'] = $vInfo->{'enlid'};
+				$oauth_identity['id'] = $googleInfo->{'gid'};
 				$oauth_identity['email'] = $v->getEmail()->{'email'};
 				$oauth_identity['firstName'] = $googleInfo->{'forename'};
 				$oauth_identity['lastName'] = $googleInfo->{'lastname'};
@@ -42,6 +42,8 @@ elseif (isset($_GET['code'])) {
 
 				$_SESSION['VOA']['oauthUsername'] = $vInfo->{'agent'}; //required for username
 				//v specific
+				$_SESSION['VOA']['gid'] = $googleInfo->{'gid'};
+				$_SESSION['VOA']['enlid'] = $vInfo->{'enlid'};
 				$_SESSION['VOA']['vlevel'] = $vInfo->{'vlevel'};
 				$_SESSION['VOA']['vpoints'] = $vInfo->{'vpoints'};
 

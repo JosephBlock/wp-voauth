@@ -323,6 +323,9 @@ Class VOA {
 			$user_id    = $matched_user->ID;
 			$user_login = $matched_user->user_login;
 			if( $oauth_identity['provider'] == 'v' ) {
+				$this->voa_link_account( $user_id );
+				$this->voa_add_gid( $user_id );
+				$this->voa_add_enlid( $user_id );
 				$this->voa_add_vlevel( $user_id );
 				$this->voa_add_vpoints( $user_id );
 				$this->voa_add_vTeams( $user_id );
@@ -338,6 +341,8 @@ Class VOA {
 			$user_id = $current_user->ID;
 			$this->voa_link_account( $user_id );
 			if( $oauth_identity['provider'] == 'v' ) {
+				$this->voa_add_gid( $user_id );
+				$this->voa_add_enlid( $user_id );
 				$this->voa_add_vlevel( $user_id );
 				$this->voa_add_vpoints( $user_id );
 			}
@@ -355,6 +360,28 @@ Class VOA {
 		$query_string   = "SELECT $usermeta_table.user_id FROM $usermeta_table WHERE $usermeta_table.meta_key = 'voa_identity' AND $usermeta_table.meta_value LIKE '%" . $oauth_identity['provider'] . "|" . $oauth_identity['id'] . "%'";
 		$query_result   = $wpdb->get_var( $query_string );
 		$user           = get_user_by( 'id', $query_result );
+		
+		// query based on old enlid entry
+		if (! $user->ID) {
+			$query_string   = "SELECT $usermeta_table.user_id FROM $usermeta_table WHERE $usermeta_table.meta_key = 'voa_identity' AND $usermeta_table.meta_value LIKE '%" . $oauth_identity['provider'] . "|" . $_SESSION['VOA']['enlid'] . "%'";
+			$query_result   = $wpdb->get_var( $query_string );
+			$user           = get_user_by( 'id', $query_result );
+		}
+
+		// query based on new enlid entry
+		if (! $user->ID) {
+			$query_string   = "SELECT $usermeta_table.user_id FROM $usermeta_table WHERE $usermeta_table.meta_key = 'voa_enlid' AND $usermeta_table.meta_value = '" . $_SESSION['VOA']['enlid'] . "'";
+			$query_result   = $wpdb->get_var( $query_string );
+			$user           = get_user_by( 'id', $query_result );
+		}
+
+		// query based on user's email
+		if (! $user->ID) {
+			$users_table = $wpdb->users;
+			$query_string   = "SELECT $users_table.ID as user_id FROM $users_table WHERE $users_table.user_email = '" . $oauth_identity['email'] . "'";
+			$query_result   = $wpdb->get_var( $query_string );
+			$user           = get_user_by( 'id', $query_result );
+		}
 
 		return $user;
 	}
@@ -400,7 +427,19 @@ Class VOA {
 
 	function voa_link_account( $user_id ) {
 		if( $_SESSION['VOA']['USER_ID'] != '' ) {
-			add_user_meta( $user_id, 'voa_identity', $_SESSION['VOA']['PROVIDER'] . '|' . $_SESSION['VOA']['USER_ID'] . '|' . time() );
+			update_user_meta( $user_id, 'voa_identity', $_SESSION['VOA']['PROVIDER'] . '|' . $_SESSION['VOA']['USER_ID'] . '|' . time() );
+		}
+	}
+
+	function voa_add_gid( $user_id ) {
+		if( $_SESSION['VOA']['USER_ID'] != '' ) {
+			update_user_meta( $user_id, 'voa_gid', $_SESSION['VOA']['gid'] );
+		}
+	}
+
+	function voa_add_enlid( $user_id ) {
+		if( $_SESSION['VOA']['USER_ID'] != '' ) {
+			update_user_meta( $user_id, 'voa_enlid', $_SESSION['VOA']['enlid'] );
 		}
 	}
 
@@ -469,6 +508,8 @@ Class VOA {
 		$query_string   = $wpdb->prepare( "DELETE FROM $usermeta_table WHERE $usermeta_table.user_id = $user_id AND $usermeta_table.meta_key = 'voa_identity' AND $usermeta_table.umeta_id = %d", $voa_identity_row );
 		$query_result   = $wpdb->query( $query_string );
 		if( $query_result ) {
+			delete_user_meta( $user_id, "voa_gid" );
+			delete_user_meta( $user_id, "voa_enlid" );
 			delete_user_meta( $user_id, "voa_vpoints" );
 			delete_user_meta( $user_id, "voa_vlevel" );
 			echo json_encode( array( 'result' => 1 ) );
